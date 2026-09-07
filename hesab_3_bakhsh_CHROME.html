@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>حساب سه‌بخشی</title>
+<style>
+body{font-family:Tahoma,Arial,sans-serif;margin:0;background:#f3f5f7;color:#17202a}
+header{background:#17202a;color:#fff;padding:18px;text-align:center}
+main{max-width:1000px;margin:auto;padding:14px}
+.card,.panel{background:#fff;border-radius:16px;padding:15px;margin:10px 0;box-shadow:0 2px 10px #0001}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.card{text-align:center;cursor:pointer}.emoji{font-size:38px}.card b{display:block;font-size:19px;margin:8px}
+.hidden{display:none}.back,button{border:0;border-radius:9px;padding:9px 12px;cursor:pointer}
+.back{background:#e8edf1}.primary{background:#17202a;color:white}
+.danger{background:#ffe1e1;color:#900}.edit{background:#e9f3ff}
+input,select{width:100%;box-sizing:border-box;padding:10px;border:1px solid #ccd3d8;border-radius:9px;font-size:15px}
+label{display:block;margin:7px 0 4px;font-size:13px}.row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+table{width:100%;border-collapse:collapse;margin-top:10px;font-size:13px}th,td{padding:8px;border-bottom:1px solid #eee;text-align:center}
+.sum{font-weight:bold;font-size:17px}.note{background:#fff7d6;padding:10px;border-radius:9px}
+.subnav{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin:10px 0}
+.subnav button{background:#e9edf1}.sub{display:none}.sub.active{display:block}
+.badge{display:inline-block;padding:5px 8px;border-radius:8px;background:#eef3f6;margin:3px}
+@media(max-width:700px){.grid,.row,.subnav{grid-template-columns:1fr}.subnav button{width:100%}}
+</style>
+</head>
+<body>
+<header><h1>حساب سه‌بخشی</h1><div>مغازه • دریا • روزمرگی</div></header>
+<main>
+
+<section id="home">
+<div class="grid">
+<div class="card" onclick="openSec('shop')"><span class="emoji">🏪</span><b>حساب مغازه</b>فروش و سود ماهانه</div>
+<div class="card" onclick="openSec('sea')"><span class="emoji">🚤</span><b>حساب دریا</b>پنج دفتر کاملاً جدا</div>
+<div class="card" onclick="openSec('personal')"><span class="emoji">💵</span><b>حساب روزمرگی</b>درآمد و خرج شخصی</div>
+</div>
+</section>
+
+<section id="shop" class="hidden">
+<button class="back" onclick="home()">← صفحه اصلی</button><h2>🏪 حساب مغازه</h2>
+<div class="panel"><div class="row">
+<div><label>تاریخ</label><input id="sd" placeholder="۱۴۰۵/۰۵/۰۱"></div>
+<div><label>فروش</label><input id="ss" inputmode="numeric"></div>
+<div><label>سود</label><input id="sp" inputmode="numeric"></div>
+</div><div class="row">
+<div><label>تعداد مشتری</label><input id="sc" inputmode="numeric"></div>
+<div><label>استوری</label><input id="sst" inputmode="numeric"></div>
+<div><label>ریلز/پست</label><input id="sr" inputmode="numeric"></div>
+</div>
+<label>فالور</label><input id="sf" inputmode="numeric">
+<button class="primary" onclick="addShop()">ثبت روز مغازه</button></div>
+<div class="panel" id="shopOut"></div>
+</section>
+
+<section id="sea" class="hidden">
+<button class="back" onclick="home()">← صفحه اصلی</button><h2>🚤 حساب دریا</h2>
+<div class="subnav">
+<button onclick="showSub(1)">۱. فروش اشخاص</button>
+<button onclick="showSub(2)">۲. کارکرد و هزینه روزانه</button>
+<button onclick="showSub(3)">۳. پرداختی نفرات</button>
+<button onclick="showSub(4)">۴. هزینه قایق</button>
+<button onclick="showSub(5)">۵. هزینه کل</button>
+</div>
+
+<div id="sea1" class="sub active">
+<div class="panel"><h3>📒 دفتر فروش روزانه به اشخاص</h3>
+<div class="row"><div><label>تاریخ</label><input id="saleDate" placeholder="۱۴۰۵/۰۶/۱۳"></div>
+<div><label>مشتری</label><input id="saleBuyer"></div>
+<div><label>درجه</label><select id="saleGrade"><option>درجه ۱</option><option>درجه ۲</option><option>درجه ۳</option></select></div></div>
+<div class="row"><div><label>تعداد سبد</label><input id="saleQty" inputmode="numeric"></div>
+<div><label>قیمت هر سبد</label><input id="salePrice" inputmode="numeric"></div><div></div></div>
+<button class="primary" onclick="addSale()">ثبت فروش جداگانه</button>
+<div id="salesList"></div>
+<hr>
+<label>انتخاب مشتری برای تسویه ماهانه</label><select id="settleBuyer" onchange="renderSettlement()"></select>
+<div id="settlement"></div>
+</div></div>
+
+<div id="sea2" class="sub">
+<div class="panel"><h3>📊 دفتر کارکرد روزانه</h3>
+<div class="row"><div><label>تاریخ</label><input id="workDate"></div>
+<div><label>سبد درجه ۱</label><input id="w1" inputmode="numeric"></div>
+<div><label>سبد درجه ۲</label><input id="w2" inputmode="numeric"></div></div>
+<div class="row"><div><label>سبد درجه ۳</label><input id="w3" inputmode="numeric"></div><div></div><div></div></div>
+<button class="primary" onclick="addWork()">ثبت کارکرد</button>
+<div id="workList"></div></div>
+
+<div class="panel"><h3>💰 هزینه روزانه دریا</h3>
+<div class="row"><div><label>تاریخ</label><input id="dayCostDate"></div><div><label>صبحانه</label><input id="breakfast" inputmode="numeric"></div><div><label>ناهار</label><input id="lunch" inputmode="numeric"></div></div>
+<div class="row"><div><label>شام</label><input id="dinner" inputmode="numeric"></div><div><label>استور ۲</label><input id="store2" inputmode="numeric"></div><div><label>کارگر خالی کردن بار</label><input id="unload" inputmode="numeric"></div></div>
+<label>متفرقه</label><input id="misc" inputmode="numeric">
+<button class="primary" onclick="addDayCost()">ثبت هزینه روزانه</button>
+<div id="dayCostsList"></div></div>
+
+<div class="panel"><h3>👥 نفرات و سهم</h3>
+<div class="row"><div><label>تعداد نفرات (حداکثر ۱۴ نفر)</label><input id="people" type="text" inputmode="numeric" value="0" oninput="renderCrewNames()"></div>
+<div><label>سهم قایق</label><input id="boatShares" type="text" inputmode="decimal" value="14"></div><div></div></div>
+<p class="note">تا ۱۴ نفر جا دارد؛ برای هر نفر اسم و سهم جداگانه وارد کن.</p>
+<div id="crewNames"></div>
+<button class="primary" onclick="saveCrew()">ثبت تنظیمات سهم</button><div id="crewOut"></div>
+</div>
+</div>
+</div>
+
+<div id="sea3" class="sub">
+<div class="panel"><h3>💵 پرداختی هر نفر — جداگانه</h3>
+<div class="row"><div><label>تاریخ</label><input id="payDate"></div><div><label>نام نفر</label><input id="payName"></div><div><label>مبلغ</label><input id="payAmount" inputmode="numeric"></div></div>
+<label>شرح</label><input id="payDesc">
+<button class="primary" onclick="addPay()">ثبت پرداخت</button>
+<div id="payList"></div><div id="payTotals"></div></div>
+</div>
+
+<div id="sea4" class="sub">
+<div class="panel"><h3>⛵ هزینه‌های خود قایق — کاملاً جدا</h3>
+<div class="row"><div><label>تاریخ</label><input id="boatDate"></div><div><label>نوع هزینه</label><select id="boatType"><option>بنزین</option><option>روغن</option><option>خرابی و تعمیرات</option><option>قطعات</option><option>متفرقه</option></select></div><div><label>مبلغ</label><input id="boatAmount" inputmode="numeric"></div></div>
+<label>شرح</label><input id="boatDesc" placeholder="مثلاً بنزین رفت و برگشت">
+<button class="primary" onclick="addBoatCost()">ثبت هزینه قایق</button>
+<div id="boatList"></div><div id="boatMonthly"></div></div>
+</div>
+
+<div id="sea5" class="sub">
+<div class="panel"><h3>📋 هزینه‌های کل</h3>
+<p>این بخش جمع دو نوع هزینه را جداگانه نشان می‌دهد و در پایان مجموع کل را می‌دهد.</p>
+<div id="totalCosts"></div></div>
+</div>
+</section>
+
+<section id="personal" class="hidden">
+<button class="back" onclick="home()">← صفحه اصلی</button><h2>💵 حساب روزمرگی</h2>
+<div class="panel"><div class="row"><div><label>تاریخ</label><input id="pd"></div><div><label>نوع</label><select id="ptype"><option>درآمد</option><option>خرج</option></select></div><div><label>مبلغ</label><input id="pa" inputmode="numeric"></div></div>
+<label>شرح</label><input id="pdesc"><button class="primary" onclick="addPersonal()">ثبت</button></div>
+<div class="panel" id="personalOut"></div>
+</section>
+</main>
+
+<script>
+const KEY='hesab3_v4';
+const empty={shop:[],sea:{sales:[],work:[],dayCosts:[],payments:[],boatCosts:[],crew:{people:0,boatShares:14,personShare:1}},personal:[]};
+let d=JSON.parse(localStorage.getItem(KEY)||'null')||empty;
+if(!d.sea) d.sea=empty.sea;
+for(const k of ['sales','work','dayCosts','payments','boatCosts']) if(!Array.isArray(d.sea[k])) d.sea[k]=[];
+if(!d.sea.crew)d.sea.crew=empty.sea.crew;
+const $=id=>document.getElementById(id);
+function num(v){if(v===null||v===undefined)return 0; v=String(v).replace(/[۰-۹]/g,c=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(c)).replace(/[٠-٩]/g,c=>'٠١٢٣٤٥٦٧٨٩'.indexOf(c)).replace(/[٬,،\s]/g,''); return Number(v)||0;}
+function n(v){return Number(String(v??'').replace(/[۰-۹]/g,c=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(c)).replace(/[٠-٩]/g,c=>'٠١٢٣٤٥٦٧٨٩'.indexOf(c)).replace(/[٬,\s]/g,''))||0}
+function money(x){return Math.round(x||0).toLocaleString('fa-IR')+' تومان'}
+function save(){localStorage.setItem(KEY,JSON.stringify(d))}
+function hideAll(){['home','shop','sea','personal'].forEach(x=>$(x).classList.add('hidden'))}
+function home(){hideAll();$('home').classList.remove('hidden')}
+function openSec(x){hideAll();$(x).classList.remove('hidden');renderAll()}
+function showSub(i){for(let j=1;j<=5;j++)$('sea'+j).classList.toggle('active',j===i);renderAll()}
+
+function addShop(){d.shop.push({date:$('sd').value,s:n($('ss').value),p:n($('sp').value),c:n($('sc').value),st:n($('sst').value),r:n($('sr').value),f:n($('sf').value)});save();renderAll()}
+function editShop(i){let x=d.shop[i];let s=prompt('فروش:',x.s);if(s===null)return;let p=prompt('سود:',x.p);if(p===null)return;x.s=n(s);x.p=n(p);save();renderAll()}
+function delShop(i){d.shop.splice(i,1);save();renderAll()}
+
+function addSale(){let b=$('saleBuyer').value.trim(),q=n($('saleQty').value),p=n($('salePrice').value);if(!b||q<=0||p<=0)return alert('مشتری، تعداد و قیمت را وارد کن');d.sea.sales.push({date:$('saleDate').value,buyer:b,grade:$('saleGrade').value,qty:q,price:p,total:q*p,settled:false});save();$('saleBuyer').value='';$('saleQty').value='';$('salePrice').value='';renderAll()}
+function editSale(i){let x=d.sea.sales[i],b=prompt('مشتری:',x.buyer),q=prompt('تعداد سبد:',x.qty),p=prompt('قیمت هر سبد:',x.price);if(b===null||q===null||p===null)return;q=n(q);p=n(p);if(!b.trim()||q<=0||p<=0)return alert('اطلاعات درست نیست');x.buyer=b.trim();x.qty=q;x.price=p;x.total=q*p;save();renderAll()}
+function delSale(i){if(confirm('این فروش حذف شود؟')){d.sea.sales.splice(i,1);save();renderAll()}}
+function settleCustomer(){let b=$('settleBuyer').value;if(!b)return;d.sea.sales.forEach(x=>{if(x.buyer===b)x.settled=true});save();renderAll();alert('فروش‌های این مشتری تسویه شد.')}
+function renderSettlement(){let b=$('settleBuyer').value,a=d.sea.sales.filter(x=>x.buyer===b&&!x.settled),t=a.reduce((s,x)=>s+x.total,0);$('settlement').innerHTML=b?'<div class="note">مانده تسویه '+b+': <b>'+money(t)+'</b><br><button class="primary" onclick="settleCustomer()">تسویه این مشتری</button></div>':''}
+
+function addWork(){d.sea.work.push({date:$('workDate').value,w1:n($('w1').value),w2:n($('w2').value),w3:n($('w3').value)});save();renderAll()}
+function editWork(i){let x=d.sea.work[i],a=prompt('سبد درجه ۱:',x.w1),b=prompt('سبد درجه ۲:',x.w2),c=prompt('سبد درجه ۳:',x.w3);if(a===null||b===null||c===null)return;x.w1=n(a);x.w2=n(b);x.w3=n(c);save();renderAll()}
+function delWork(i){d.sea.work.splice(i,1);save();renderAll()}
+
+function addDayCost(){let a={date:$('dayCostDate').value,breakfast:n($('breakfast').value),lunch:n($('lunch').value),dinner:n($('dinner').value),store2:n($('store2').value),unload:n($('unload').value),misc:n($('misc').value)};d.sea.dayCosts.push(a);save();renderAll()}
+function editDayCost(i){let x=d.sea.dayCosts[i];['breakfast','lunch','dinner','store2','unload','misc'].forEach(k=>{let v=prompt(k,x[k]);if(v!==null)x[k]=n(v)});save();renderAll()}
+function delDayCost(i){d.sea.dayCosts.splice(i,1);save();renderAll()}
+
+function renderCrewNames(){let c=Math.min(14,Math.max(0,Math.floor(n($('people').value||0))));let old=d.sea.crew.members||[];let h='';for(let i=0;i<c;i++){let m=old[i]||{name:'',share:1};h+='<div class="row"><div><label>نفر '+(i+1)+' - نام</label><input id="cn'+i+'" value="'+String(m.name||'').replace(/"/g,'&quot;')+'"></div><div><label>سهم نفر '+(i+1)+'</label><input id="cs'+i+'" type="text" inputmode="decimal" value="'+(m.share??1)+'"></div><div></div></div>'}$('crewNames').innerHTML=h}function saveCrew(){let c=Math.min(14,Math.max(0,Math.floor(n($('people').value||0)))),members=[];for(let i=0;i<c;i++)members.push({name:$('cn'+i)?.value.trim()||('نفر '+(i+1)),share:n($('cs'+i)?.value)||1});d.sea.crew={people:c,boatShares:Math.max(0,n($('boatShares').value)),members};save();renderAll();alert('اسامی و سهم نفرات ثبت شد')}
+function addPay(){let name=$('payName').value.trim(),amount=n($('payAmount').value);if(!name||amount<=0)return alert('نام و مبلغ را وارد کن');d.sea.payments.push({date:$('payDate').value,name,amount,desc:$('payDesc').value.trim()});save();$('payName').value='';$('payAmount').value='';$('payDesc').value='';renderAll()}
+function editPay(i){let x=d.sea.payments[i],a=prompt('مبلغ:',x.amount),b=prompt('شرح:',x.desc);if(a===null)return;x.amount=n(a);if(b!==null)x.desc=b;save();renderAll()}
+function delPay(i){d.sea.payments.splice(i,1);save();renderAll()}
+
+function addBoatCost(){let amount=n($('boatAmount').value);if(amount<=0)return alert('مبلغ را وارد کن');d.sea.boatCosts.push({date:$('boatDate').value,type:$('boatType').value,amount,desc:$('boatDesc').value.trim()});save();$('boatAmount').value='';$('boatDesc').value='';renderAll()}
+function editBoatCost(i){let x=d.sea.boatCosts[i],a=prompt('مبلغ:',x.amount),b=prompt('شرح:',x.desc);if(a===null)return;x.amount=n(a);if(b!==null)x.desc=b;save();renderAll()}
+function delBoatCost(i){d.sea.boatCosts.splice(i,1);save();renderAll()}
+
+function addPersonal(){let amount=n($('pa').value);if(amount<=0)return alert('مبلغ را وارد کن');d.personal.push({date:$('pd').value,type:$('ptype').value,amount,desc:$('pdesc').value});save();renderAll()}
+
+function renderAll(){
+ $('shopOut').innerHTML='<div class="sum">جمع فروش: '+money(d.shop.reduce((s,x)=>s+x.s,0))+' | جمع سود: '+money(d.shop.reduce((s,x)=>s+x.p,0))+'</div>'+d.shop.slice().reverse().map((x,r)=>{let i=d.shop.length-1-r;return `<div class="badge">${x.date||''} | فروش ${money(x.s)} | سود ${money(x.p)} <button class="edit" onclick="editShop(${i})">✏️</button><button class="danger" onclick="delShop(${i})">حذف</button></div>`}).join('');
+ $('salesList').innerHTML=d.sea.sales.slice().reverse().map((x,r)=>{let i=d.sea.sales.length-1-r;return `<div class="card"><b>${x.date}</b> | ${x.buyer} | ${x.grade} | ${x.qty} سبد × ${money(x.price)} = <b>${money(x.total)}</b> ${x.settled?'✅ تسویه شده':''}<br><button class="edit" onclick="editSale(${i})">✏️ ویرایش</button> <button class="danger" onclick="delSale(${i})">حذف</button></div>`}).join('')||'هنوز فروشی ثبت نشده.';
+ let buyers=[...new Set(d.sea.sales.map(x=>x.buyer))];$('settleBuyer').innerHTML='<option value="">انتخاب مشتری</option>'+buyers.map(x=>`<option>${x}</option>`).join('');renderSettlement();
+
+ $('workList').innerHTML=d.sea.work.slice().reverse().map((x,r)=>{let i=d.sea.work.length-1-r;return `<div class="badge">${x.date} | درجه۱: ${x.w1} | درجه۲: ${x.w2} | درجه۳: ${x.w3} <button class="edit" onclick="editWork(${i})">✏️</button><button class="danger" onclick="delWork(${i})">حذف</button></div>`}).join('');
+ $('dayCostsList').innerHTML=d.sea.dayCosts.slice().reverse().map((x,r)=>{let i=d.sea.dayCosts.length-1-r,t=x.breakfast+x.lunch+x.dinner+x.store2+x.unload+x.misc;return `<div class="card">${x.date} | جمع روز: <b>${money(t)}</b><br>صبحانه ${money(x.breakfast)} | ناهار ${money(x.lunch)} | شام ${money(x.dinner)} | استور۲ ${money(x.store2)} | تخلیه ${money(x.unload)} | متفرقه ${money(x.misc)}<br><button class="edit" onclick="editDayCost(${i})">✏️ ویرایش</button><button class="danger" onclick="delDayCost(${i})">حذف</button></div>`}).join('');
+ let c=d.sea.crew;c.members=c.members||Array.from({length:c.people||0},()=>({name:'',share:1}));let personShares=c.members.reduce((s,m)=>s+(Number(m.share)||1),0),totalShares=personShares+(Number(c.boatShares)||0),daySales=d.sea.sales.reduce((s,x)=>s+x.total,0),dayCosts=d.sea.dayCosts.reduce((s,x)=>s+x.breakfast+x.lunch+x.dinner+x.store2+x.unload+x.misc,0),net=daySales-dayCosts,each=totalShares?net/totalShares:0;
+ $('people').value=c.people;$('boatShares').value=c.boatShares;renderCrewNames();
+ $('crewOut').innerHTML=`<div class="note">نفرات: ${c.people} | سهم نفرات: ${personShares} | سهم قایق: ${c.boatShares} | کل سهم: ${totalShares}<br>فروش: ${money(daySales)} | هزینه روزانه: ${money(dayCosts)} | خالص: ${money(net)}<br>ارزش هر سهم: <b>${money(each)}</b> | سهم قایق: <b>${money(each*c.boatShares)}</b> | ارزش سهم نفرات طبق سهم ثبت‌شده: <b>${money(each*personShares)}</b></div>`;
+ $('payList').innerHTML=d.sea.payments.slice().reverse().map((x,r)=>{let i=d.sea.payments.length-1-r;return `<div class="badge">${x.date} | ${x.name} | ${money(x.amount)} | ${x.desc||''} <button class="edit" onclick="editPay(${i})">✏️</button><button class="danger" onclick="delPay(${i})">حذف</button></div>`}).join('');
+ let pt={};d.sea.payments.forEach(x=>pt[x.name]=(pt[x.name]||0)+x.amount);$('payTotals').innerHTML='<div class="note"><b>جمع پرداختی هر نفر:</b><br>'+Object.entries(pt).map(([k,v])=>k+' : '+money(v)).join('<br>')+'</div>';
+ $('boatList').innerHTML=d.sea.boatCosts.slice().reverse().map((x,r)=>{let i=d.sea.boatCosts.length-1-r;return `<div class="badge">${x.date} | ${x.type} | ${money(x.amount)} | ${x.desc||''} <button class="edit" onclick="editBoatCost(${i})">✏️</button><button class="danger" onclick="delBoatCost(${i})">حذف</button></div>`}).join('');
+ let bm={};d.sea.boatCosts.forEach(x=>{let m=(x.date||'بدون تاریخ').slice(0,7);bm[m]=(bm[m]||0)+x.amount});$('boatMonthly').innerHTML='<div class="note"><b>جمع هزینه قایق به تفکیک ماه:</b><br>'+Object.entries(bm).map(([k,v])=>k+' : '+money(v)).join('<br>')+'</div>';
+ let monthly={};d.sea.dayCosts.forEach(x=>{let m=(x.date||'بدون تاریخ').slice(0,7);monthly[m]=(monthly[m]||0)+x.breakfast+x.lunch+x.dinner+x.store2+x.unload+x.misc});
+ let totalDay=Object.values(monthly).reduce((a,b)=>a+b,0),totalBoat=d.sea.boatCosts.reduce((s,x)=>s+x.amount,0);
+ $('totalCosts').innerHTML='<div class="sum">هزینه‌های روزانه دریا: '+money(totalDay)+'<br>هزینه‌های خود قایق: '+money(totalBoat)+'<br>💰 کل هزینه‌ها: '+money(totalDay+totalBoat)+'</div><hr><b>هزینه روزانه به تفکیک ماه:</b><br>'+Object.entries(monthly).map(([k,v])=>k+' : '+money(v)).join('<br>')+'<hr><b>هزینه قایق به تفکیک ماه:</b><br>'+Object.entries(bm).map(([k,v])=>k+' : '+money(v)).join('<br>');
+ let pin=d.personal.reduce((s,x)=>s+(x.type==='درآمد'?x.amount:-x.amount),0);$('personalOut').innerHTML='<div class="sum">مانده: '+money(pin)+'</div>'+d.personal.slice().reverse().map(x=>`${x.date} | ${x.type} | ${money(x.amount)} | ${x.desc||''}`).join('<br>');
+}
+renderAll();
+</script>
+</body></html>
